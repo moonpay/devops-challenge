@@ -1,0 +1,21 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "search.exclude": {
+    "/coverage": true
+  },
+  "files.insertFinalNewline": true,
+  "jestrunner.jestCommand": "npm run test",
+  "cSpell.words": [
+    "tailwindcss"
+  ]
+}
