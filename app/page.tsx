@@ -21,7 +21,7 @@ export default function Home() {
       </Suspense>
       <p className="font-light text-gray-600 w-full max-w-lg text-center mt-6">
         <Link
-          href="https://vercel.com/postgres"
+          href="https://nextjs.org"
           className="font-medium underline underline-offset-4 hover:text-cosmos transition-colors"
         >
           Next.js
