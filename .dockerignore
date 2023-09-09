@@ -1,0 +1,12 @@
+# Ignore .git folder
+.git
+
+# Ignore node_modules folder
+node_modules
+
+# Ignore .env file
+.env
+
+# Ignore .next and .turbo folders
+.next
+.turbo
