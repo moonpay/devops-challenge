@@ -3,20 +3,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 import Table from "../components/table";
 import TablePlaceholder from "../components/table-placeholder";
+import prisma from "../lib/prisma";
 
-// Prisma does not support Edge without the Data Proxy currently
-// export const runtime = 'edge'
-export const preferredRegion = "home";
-export const dynamic = "force-dynamic";
-
-export default function Home() {
+export default async function Home() {
+  const currencies = await prisma.currencies.findMany();
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center">
       <h1 className="py-4 bg-gradient-to-br from-black via-cosmos to-moonpay bg-clip-text text-center font-bold tracking-tight text-transparent text-6xl md:text-7xl">
         LatestPrices
       </h1>
       <Suspense fallback={<TablePlaceholder />}>
-        <Table />
+        <Table currencies={currencies} />
       </Suspense>
       <p className="font-light text-gray-600 w-full max-w-lg text-center mt-6">
         <Link
@@ -54,13 +51,20 @@ export default function Home() {
             height={0}
             sizes="100vw"
             style={{ width: 150, height: "auto" }}
+            priority
           />
         </Link>
         <Link
           href="https://github.com/moonpay/devops-challenge"
           className="flex shrink-0 justify-center items-center space-x-2"
         >
-          <Image src="/github.svg" alt="GitHub Logo" width={24} height={24} />
+          <Image
+            src="/github.svg"
+            alt="GitHub Logo"
+            width={24}
+            height={24}
+            priority
+          />
           <p className="font-light">Source</p>
         </Link>
       </div>

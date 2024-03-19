@@ -1,10 +1,20 @@
-import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import Image from "next/image";
 import RefreshButton from "./refresh-button";
 
-export default async function Table() {
+type Props = {
+  currencies: Prisma.currenciesGetPayload<{
+    select: {
+      name: boolean;
+      code: boolean;
+      icon: boolean;
+      price: boolean;
+    };
+  }>[];
+};
+
+export default async function Table({ currencies }: Props) {
   const startTime = Date.now();
-  const currencies = await prisma.currencies.findMany();
   const duration = Date.now() - startTime;
 
   return (

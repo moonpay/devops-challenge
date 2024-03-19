@@ -7,9 +7,10 @@ export const metadata = {
 };
 
 const luna = localFont({
-  src: "./Luna-VF.woff2",
+  src: "./fonts/Luna-VF.woff2",
   display: "swap",
   variable: "--font-luna",
+  preload: true,
 });
 
 export default function RootLayout({
