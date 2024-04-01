@@ -5,6 +5,9 @@ import Table from "../components/table";
 import TablePlaceholder from "../components/table-placeholder";
 import prisma from "../lib/prisma";
 
+// https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const currencies = await prisma.currencies.findMany();
   return (
