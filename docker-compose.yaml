@@ -3,7 +3,7 @@ version: "3.8"
 # compose for postgres, pgadmin, and nextjs
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
