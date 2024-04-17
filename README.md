@@ -53,3 +53,4 @@ pnpm dev
 ```
 
 Once this command runs successfully, the project is up and ready. You might be missing some components (like a Dockerfile), but you can add them as you go.
+
