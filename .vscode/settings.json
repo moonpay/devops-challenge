@@ -11,6 +11,9 @@
     "/coverage": true
   },
   "files.insertFinalNewline": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
   "jestrunner.jestCommand": "npm run test",
   "cSpell.words": ["tailwindcss"]
 }

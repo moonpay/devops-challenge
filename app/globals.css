@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-moonpay: #7715F5;
+  --color-cosmos: #39107A;
+}
 
 :root {
   --foreground-rgb: 0, 0, 0;
