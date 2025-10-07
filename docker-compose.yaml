@@ -1,5 +1,3 @@
-version: "3.8"
-
 # compose for postgres, pgadmin, and nextjs
 services:
   postgres:
