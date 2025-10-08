@@ -1,7 +1,7 @@
 # compose for postgres, pgadmin, and nextjs
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
