@@ -33,7 +33,7 @@ Please note that the `.env` file is ignored by Git for security reasons.
 Next, you need to start the database and seed the data. You can do this by running the following command:
 
 ```bash
-docker run --rm --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=currencies -p 5432:5432 -d postgres:15
+docker run --rm --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=currencies -p 5432:5432 -d postgres:17-alpine
 
 pnpm db:seed
 
