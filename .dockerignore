@@ -10,3 +10,6 @@ node_modules
 # Ignore .next and .turbo folders
 .next
 .turbo
+
+# Ignore k8s files
+k8s
