@@ -13,17 +13,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       
-      - name: Setup nodejs
-        uses: actions/setup-node@v4
-        with:
-          node_version: '22'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      # - name: Run tests
-      #   run: npm test
-      
       - name: Create docker image
         run: docker build -t ${{ env.DOCKER_REPO }}:latest -f Dockerfile .
 
@@ -31,8 +20,8 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "${{ env.DOCKER_REPO }}:latest"
-          format: 'json'
-          output: 'trivy-report.json'
+          format: 'table'
+          output: 'trivy-report.txt'
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v4
