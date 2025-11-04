@@ -1,0 +1,22 @@
+name: Run PR checks
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO: nnnabeel/devops-challenge
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Create docker image
+        run: docker build -t ${{ env.DOCKER_REPO }}:latest -f Dockerfile .
+    
+      - name: Publish docker image
+        run: docker push ${{ env.DOCKER_REPO }}:latest
