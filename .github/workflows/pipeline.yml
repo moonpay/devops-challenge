@@ -12,7 +12,7 @@ jobs:
   br-build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    name: branch build + smoke test
+    name: Branch build
 
     steps:
       - name: Checkout
@@ -48,14 +48,21 @@ jobs:
           curl -f http://localhost:3001/
         shell: bash
 
+      - name: Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,commit,author
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   pr-build:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    name: PR build completo
+    name: Pull request build
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -100,3 +107,10 @@ jobs:
 
       - name: Build Application
         run: pnpm build
+
+      - name: Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,commit,author
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
