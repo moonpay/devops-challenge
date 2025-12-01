@@ -1,3 +1,5 @@
+THIS IS A TEST
+
 # Next.js Prisma Starter
 
 This is a simple Next.js template that incorporates [Prisma](https://prisma.io/) as the Object-Relational Mapping (ORM) tool. The following instructions guide you on how to effectively use this template.
