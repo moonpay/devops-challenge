@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -49,5 +49,8 @@ jobs:
       - name: Run Prisma Migrations
         run: pnpm prisma migrate deploy
 
+      - name: Run Lint Code
+        run: pnpm lint
+
       - name: Build Application
-        run: pnpm build
+        run: pnpm dev

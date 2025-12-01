@@ -1,0 +1,102 @@
+name: pipeline
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  br-build:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: branch build + smoke test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      - name: Build Application
+        run: pnpm build
+
+      - name: Start app for smoke test
+        run: |
+          PORT=3001 pnpm start &
+          echo "Wait 5 seconds for server..."
+          sleep 5
+          curl -f http://localhost:3001/
+        shell: bash
+
+  pr-build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: PR build completo
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_PRISMA_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/${{ secrets.POSTGRES_DB }}?schema=public
+      NODE_ENV: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      - name: Run Prisma Migrations
+        run: pnpm prisma migrate deploy
+
+      - name: Build Application
+        run: pnpm build
