@@ -66,8 +66,6 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     name: pull request build
-    env:
-      POSTGRES_PRISMA_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/${{ secrets.POSTGRES_DB }}?schema=public
 
     steps:
       - name: Checkout
@@ -105,6 +103,10 @@ jobs:
             echo "wait for postgres..."
             sleep 5
           done
+
+      - name: Set Prisma URL
+        run: |
+          echo "POSTGRES_PRISMA_URL=postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/${{ secrets.POSTGRES_DB }}?schema=public" >> $GITHUB_ENV
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
