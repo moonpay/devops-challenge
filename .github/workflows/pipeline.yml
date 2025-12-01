@@ -40,31 +40,6 @@ jobs:
       - name: Build Application
         run: pnpm build
 
-      - name: Smoke test
-        shell: bash
-        env:
-          POSTGRES_PRISMA_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/${{ secrets.POSTGRES_DB }}?schema=public
-        run: |
-          PORT=3000
-          echo "App listen on $PORT"
-          pnpm start &
-          APP_PID=$!
-          echo "Be pacient..."
-          MAX_RETRIES=3
-          COUNT=0
-          until curl -f http://localhost:$PORT/; do
-            COUNT=$((COUNT+1))
-            if [ $COUNT -ge $MAX_RETRIES ]; then
-             echo "No reply after $MAX_RETRIES attempts."
-             kill $APP_PID
-             exit 1
-            fi
-            echo "waiting 1 second..."
-            sleep 1
-          done
-          echo "Up and running :)"
-          kill $APP_PID
-
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
         with:
@@ -128,6 +103,29 @@ jobs:
 
       - name: Build Application
         run: pnpm build
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          PORT=3000
+          echo "App listen on $PORT"
+          pnpm start &
+          APP_PID=$!
+          echo "Be pacient..."
+          MAX_RETRIES=3
+          COUNT=0
+          until curl -f http://localhost:$PORT/; do
+            COUNT=$((COUNT+1))
+            if [ $COUNT -ge $MAX_RETRIES ]; then
+             echo "No reply after $MAX_RETRIES attempts."
+             kill $APP_PID
+             exit 1
+            fi
+            echo "waiting 1 second..."
+            sleep 1
+          done
+          echo "Up and running :)"
+          kill $APP_PID
 
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
