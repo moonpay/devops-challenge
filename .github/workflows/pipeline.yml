@@ -40,13 +40,20 @@ jobs:
       - name: Build Application
         run: pnpm build
 
-      - name: Start app for smoke test
-        run: |
-          PORT=3001 pnpm start &
-          echo "Wait 5 seconds for app..."
-          sleep 5
-          curl -f http://localhost:3001/
+      - name: Smoke test
         shell: bash
+        run: |
+          PORT=3001
+          echo "App listen on $PORT"
+          pnpm start &
+          APP_PID=$!
+          echo "Be pacient..."
+          until curl -f http://localhost:$PORT/; do
+            echo "waiting 1 second..."
+            sleep 1
+          done
+         echo "Up and running :)"
+         kill $APP_PID
 
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
