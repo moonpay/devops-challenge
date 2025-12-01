@@ -1,4 +1,4 @@
-name: pipeline
+name: pipeline moonpay
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
   br-build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    name: Branch build
+    name: feature branch build
 
     steps:
       - name: Checkout
@@ -43,7 +43,7 @@ jobs:
       - name: Start app for smoke test
         run: |
           PORT=3001 pnpm start &
-          echo "Wait 5 seconds for server..."
+          echo "Wait 5 seconds for app..."
           sleep 5
           curl -f http://localhost:3001/
         shell: bash
@@ -58,26 +58,9 @@ jobs:
   pr-build:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    name: Pull request build
-
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+    name: pull request build
     env:
       POSTGRES_PRISMA_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/${{ secrets.POSTGRES_DB }}?schema=public
-      NODE_ENV: production
 
     steps:
       - name: Checkout
@@ -98,6 +81,23 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: start postgres docker
+        run: |
+          docker run -d --rm \
+            --name ci_postgres \
+            -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            -p 5432:5432 \
+            postgres:17
+
+      - name: Wait for Postgres
+        run: |
+          until docker exec ci_postgres pg_isready -U ${{ secrets.POSTGRES_USER }}; do
+            echo "wait for postgres..."
+            sleep 5
+          done
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
