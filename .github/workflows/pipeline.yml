@@ -43,7 +43,7 @@ jobs:
       - name: Smoke test
         shell: bash
         run: |
-          PORT=3001
+          PORT=3000
           echo "App listen on $PORT"
           pnpm start &
           APP_PID=$!
@@ -52,8 +52,8 @@ jobs:
             echo "waiting 1 second..."
             sleep 1
           done
-         echo "Up and running :)"
-         kill $APP_PID
+          echo "Up and running :)"
+          kill $APP_PID
 
       - name: Slack Notification
         uses: 8398a7/action-slack@v3
