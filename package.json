@@ -4,6 +4,7 @@
   "license": "MIT",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": "prisma generate && next dev --turbo",
     "build": "prisma generate && next build",
