@@ -1,0 +1,134 @@
+# 1. Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: moonpay-local
+  labels:
+    environment: local
+    owner: platform
+    app.kubernetes.io/name: moonpay
+    app.kubernetes.io/part-of: moonpay-platform
+
+---
+# 2. ConfigMap (Next.js Global Settings)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextjs-config
+  namespace: moonpay-local
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  HOSTNAME: "0.0.0.0"
+
+---
+# ------------------------------------------------------------
+# 3. Secret (Local)
+# NOTE: In real environments, this would be sourced from
+# Vault instead of plaintext manifests.
+# ------------------------------------------------------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: moonpay-local
+  labels:
+    app.kubernetes.io/name: moonpay
+type: Opaque
+stringData:
+  DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/currencies?schema=public
+
+---
+# 4. Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moonpay-app
+  namespace: moonpay-local
+  labels:
+    app.kubernetes.io/name: moonpay
+    app.kubernetes.io/component: web
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: moonpay
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: moonpay
+        app.kubernetes.io/component: web
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: web
+          image: moonpay-app:latest
+          imagePullPolicy: Never # Local-only; would be IfNotPresent / Always in prod
+
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+
+          env:
+            - name: POSTGRES_PRISMA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DATABASE_URL
+          
+          # Health checks (critical)
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+
+          # Resource management
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          # Security best practices
+          securityContext:
+            allowPrivilegeEscalation: false
+            #readOnlyRootFilesystem: true
+            #runAsNonRoot: true
+            #runAsUser: 10001
+
+---
+# 5. Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: moonpay-service
+  namespace: moonpay-local
+  labels:
+    app.kubernetes.io/name: moonpay
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: moonpay
+    app.kubernetes.io/component: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30080
