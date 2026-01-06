@@ -1,0 +1,31 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Image'
+    args: [
+      'build', 
+      '--platform', 'linux/amd64', 
+      '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP_NAME}-docker/${_APP_NAME}:${SHORT_SHA}', 
+      '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP_NAME}-docker/${_APP_NAME}:latest',
+      '.'
+    ]
+    env:
+      - 'DOCKER_BUILDKIT=1'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Image'
+    args: ['push', '--all-tags', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP_NAME}-docker/${_APP_NAME}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy Web App'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'services', 'update', '${_APP_NAME}',
+      '--image', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP_NAME}-docker/${_APP_NAME}:${SHORT_SHA}',
+      '--region', '${_REGION}',
+      '--port', '3000',
+      '--vpc-connector', '${_APP_NAME}-connector'
+        ]
+substitutions:
+  _APP_NAME: nextjs-app
+  _REGION: europe-west1
+
+options:
+  logging: CLOUD_LOGGING_ONLY

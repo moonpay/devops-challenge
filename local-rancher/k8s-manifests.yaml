@@ -79,7 +79,7 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: DATABASE_URL
-          
+
           # Health checks (critical)
           livenessProbe:
             httpGet:
