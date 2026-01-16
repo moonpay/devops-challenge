@@ -1,55 +1,58 @@
 # Next.js Prisma Starter
 
-This is a simple Next.js template that incorporates [Prisma](https://prisma.io/) as the Object-Relational Mapping (ORM) tool. The following instructions guide you on how to effectively use this template.
+A Next.js template using [Prisma](https://prisma.io/) as the ORM.
 
-## Step-by-step Usage Guide
+## Getting Started
 
-### Step 1: Clone and Install Dependencies
-
-The first step is to clone this repository and install dependencies. This can be done in a couple ways:
+### 1. Install Dependencies
 
 ```bash
-pnpm create next-app --example https://github.com/moonpay/devops-challenge
-
-# or
-
-git clone https://github.com/moonpay/devops-challenge
-cd devops-challenge
 pnpm install
 ```
 
-### Step 2: Set Up Environment Variables
+### 2. Set Up Environment Variables
 
-Once you've cloned the project, you need to configure the environment variables. Start by creating a `.env` file by copying the provided `.env.example` file in this directory. You can do this using the command:
+Create a `.env` file with your database connection:
 
 ```bash
-cp .env.example .env
+echo 'POSTGRES_PRISMA_URL=postgres://postgres:postgres@localhost:5432/currencies?schema=public' > .env
 ```
 
-Please note that the `.env` file is ignored by Git for security reasons.
-
-### Step 3: Start the Database and Seed Data
-
-Next, you need to start the database and seed the data. You can do this by running the following command:
+### 3. Start the Database
 
 ```bash
-docker run --rm --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=currencies -p 5432:5432 -d postgres:17-alpine
+docker compose up -d postgres
+```
 
-pnpm db:seed
+### 4. Seed the Database
 
-# or
-
-docker compose up -d
-
+```bash
 pnpm db:seed
 ```
 
-### Step 4: Start Development Server
-
-Finally, you are ready to run the Next.js development server. Execute the following command in your terminal:
+### 5. Start Development Server
 
 ```bash
 pnpm dev
 ```
 
-Once this command runs successfully, the project is up and ready. You might be missing some components (like a Dockerfile), but you can add them as you go.
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+## Useful Commands
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Build for production |
+| `pnpm db:seed` | Push schema and seed the database |
+| `pnpm db:studio` | Open Prisma Studio to inspect the database |
+
+## Docker
+
+To run the full stack with Docker:
+
+```bash
+docker compose up -d
+```
+
+This starts both PostgreSQL and the Next.js app (once we have a Dockerfile)

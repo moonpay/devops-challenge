@@ -9,8 +9,8 @@
     "build": "prisma generate && next build",
     "db:schema:push": "prisma generate && prisma db push",
     "db:seed": "prisma generate && prisma db push && prisma db seed",
-    "start": "next start",
-    "lint": "next lint"
+    "db:studio": "prisma studio",
+    "start": "next start"
   },
   "dependencies": {
     "@prisma/client": "6.16.3",
