@@ -13,7 +13,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@prisma/client": "6.16.3",
+    "@prisma/client": "6.19.2",
     "next": "16.0.7",
     "react": "19.2.1",
     "react-dom": "19.2.1"
@@ -27,7 +27,7 @@
     "eslint": "9.37.0",
     "eslint-config-next": "16.0.7",
     "postcss": "8.5.6",
-    "prisma": "6.16.3",
+    "prisma": "6.19.2",
     "tailwindcss": "4.1.14",
     "ts-node": "10.9.2",
     "turbo": "2.5.8",
