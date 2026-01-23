@@ -20,14 +20,14 @@
     "dotenv": "17.2.3",
     "next": "16.0.7",
     "pg": "8.17.2",
-    "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.13.0",
     "@types/pg": "8.16.0",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
     "eslint": "9.37.0",
     "eslint-config-next": "16.0.7",
