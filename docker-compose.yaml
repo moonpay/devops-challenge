@@ -15,7 +15,7 @@ services:
     build: .
     restart: always
     environment:
-      POSTGRES_PRISMA_URL: postgres://postgres:postgres@postgres:5432/currencies?schema=public
+      POSTGRES_PRISMA_URL: postgres://postgres:postgres@host.docker.internal:5432/currencies?schema=public
     ports:
       - 3000:3000
     depends_on:
