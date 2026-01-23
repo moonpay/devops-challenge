@@ -1,6 +1,5 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/prisma/generated/client";
 import Image from "next/image";
-import RefreshButton from "./refresh-button";
 
 type Props = {
   currencies: Prisma.currenciesGetPayload<{
@@ -26,7 +25,6 @@ export default async function Table({ currencies }: Props) {
             Fetched {currencies.length} currencies in {duration}ms
           </p>
         </div>
-        <RefreshButton />
       </div>
       <div className="divide-y divide-gray-900/5">
         {currencies.map((currency) => (
