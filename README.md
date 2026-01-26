@@ -22,14 +22,14 @@ A Next.js application displaying cryptocurrency prices, built with Prisma 7 and 
 ### Setup
 
 ```bash
+# Set up environment
+cp .env.example .env
+
 # Install dependencies (runs prisma generate automatically)
 pnpm install
 
 # Start PostgreSQL
 docker compose up -d postgres
-
-# Set up environment
-cp .env.example .env
 
 # Run migrations
 pnpm db:migrate
