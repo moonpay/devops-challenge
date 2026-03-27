@@ -40,3 +40,22 @@ yarn-error.log*
 
 prisma/generated
 .pnpm-store
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Helm
+helm/*/charts/
+helm/*/*.lock
+
+# IDE
+.vscode
+.idea

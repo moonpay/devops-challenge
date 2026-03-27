@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crypto-prices-app-config
+  labels:
+    {{- include "crypto-prices.labels" . | nindent 4 }}
+data:
+  POSTGRES_PRISMA_URL: {{ default (printf "postgres://%s:$(DB_PASSWORD)@%s-postgresql:5432/%s?schema=public" .Values.app.config.dbUser .Release.Name .Values.app.config.dbName) .Values.app.config.databaseUrl | quote }}
+  NODE_ENV: "production"
+  PORT: {{ .Values.app.config.port | quote }}
+  HOSTNAME: "0.0.0.0"
