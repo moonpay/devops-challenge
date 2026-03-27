@@ -1,0 +1,157 @@
+app:
+  image:
+    repository: vguptamc/crypto-prices
+    tag: latest
+    pullPolicy: Always
+
+  replicaCount: 1
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPU: 70
+    targetMemory: null
+
+  pdb:
+    enabled: false
+    minAvailable: 1
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  config:
+    port: "3000"
+    dbUser: postgres
+    dbName: currencies
+    databaseUrl: "" # auto-generated from release name + bitnami postgres
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 15
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 5
+
+externalSecrets:
+  enabled: false # set to true for GKE with External Secrets Operator
+  gcpProjectId: "vg-moonpay-challenge"
+
+secrets:
+  dbPassword: "changeme" # only used when externalSecrets.enabled is false
+
+postgresql:
+  enabled: true
+  image:
+    tag: "latest"
+  auth:
+    database: currencies
+    username: postgres
+    existingSecret: crypto-prices-secret
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: db-password
+  primary: {}
+
+prometheus:
+  enabled: true
+  server:
+    persistentVolume:
+      enabled: false
+    global:
+      scrape_interval: 15s
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+
+loki:
+  enabled: true
+  deploymentMode: SingleBinary
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 512Mi
+  gateway:
+    enabled: false
+  memberlist:
+    service:
+      publishNotReadyAddresses: true
+  write:
+    replicas: 0
+  read:
+    replicas: 0
+  backend:
+    replicas: 0
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
+  lokiCanary:
+    enabled: false
+  test:
+    enabled: false
+  loki:
+    storage:
+      type: filesystem
+    useTestSchema: true
+    commonConfig:
+      replication_factor: 1
+
+grafana:
+  enabled: true
+  adminPassword: admin
+  service:
+    type: ClusterIP
+    port: 80
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://crypto-prices-prometheus-server
+          access: proxy
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://crypto-prices-loki:3100
+          access: proxy
+          isDefault: false
+          jsonData:
+            maxLines: 1000
+            httpHeaderName1: X-Scope-OrgID
+          secureJsonData:
+            httpHeaderValue1: fake
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      provider:
+        folder: "Crypto Prices"
+        disableDelete: true

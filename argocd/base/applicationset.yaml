@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: crypto-prices
+  namespace: argocd-system
+spec:
+  generators:
+    - list:
+        elements: []
+  template:
+    metadata:
+      name: "crypto-prices-{{cluster}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/moonpay/devops-challenge.git
+        targetRevision: main
+        path: helm/crypto-prices
+        helm:
+          valueFiles:
+            - values.yaml
+          parameters:
+            - name: app.image.tag
+              value: "{{imageTag}}"
+            - name: externalSecrets.enabled
+              value: "{{externalSecretsEnabled}}"
+            - name: externalSecrets.gcpProjectId
+              value: "{{gcpProjectId}}"
+      destination:
+        server: "{{url}}"
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

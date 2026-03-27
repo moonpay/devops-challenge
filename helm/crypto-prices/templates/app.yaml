@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+  labels:
+    {{- include "crypto-prices.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  {{- if not .Values.app.autoscaling.enabled }}
+  replicas: {{ .Values.app.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+        - name: wait-for-migration
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL and migration to complete..."
+              until node -e "
+                const { Pool } = require('pg');
+                const pool = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
+                pool.query(\"SELECT 1 FROM currencies LIMIT 1\")
+                  .then(() => { pool.end(); process.exit(0); })
+                  .catch(() => { pool.end(); process.exit(1); });
+              "; do
+                echo "Database not ready, retrying in 3s..."
+                sleep 3
+              done
+              echo "Database ready, currencies table exists."
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crypto-prices-secret
+                  key: db-password
+            - name: POSTGRES_PRISMA_URL
+              value: {{ printf "postgres://%s:$(DB_PASSWORD)@%s-postgresql:5432/%s?schema=public" .Values.app.config.dbUser .Release.Name .Values.app.config.dbName | quote }}
+      containers:
+        - name: nextjs
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.app.service.port }}
+
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crypto-prices-secret
+                  key: db-password
+            - name: POSTGRES_PRISMA_URL
+              value: {{ printf "postgres://%s:$(DB_PASSWORD)@%s-postgresql:5432/%s?schema=public" .Values.app.config.dbUser .Release.Name .Values.app.config.dbName | quote }}
+
+          livenessProbe:
+            {{- toYaml .Values.app.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.app.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-app
+  labels:
+    {{- include "crypto-prices.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  type: {{ .Values.app.service.type }}
+  selector:
+    app: {{ .Release.Name }}-app
+  ports:
+    - port: {{ .Values.app.service.port }}
+      targetPort: {{ .Values.app.service.port }}
+      protocol: TCP
+      name: http

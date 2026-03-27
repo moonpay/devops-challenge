@@ -10,16 +10,22 @@ services:
       - 5432:5432
     volumes:
       - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d currencies"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nextjs:
     build: .
     restart: always
     environment:
-      POSTGRES_PRISMA_URL: postgres://postgres:postgres@host.docker.internal:5432/currencies?schema=public
+      POSTGRES_PRISMA_URL: "postgres://postgres:postgres@postgres:5432/currencies?schema=public"
     ports:
-      - 3000:3000
+      - 8087:3000
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres:
